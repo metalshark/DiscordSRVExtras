@@ -1,0 +1,3 @@
+ServerAdmin: "%guildowner%"
+RolesToGroups:
+  "000000000000000000": "default"
