@@ -11,7 +11,6 @@ public class GuildMemberRoleAddListener extends ListenerAdapter {
     public void onGuildMemberRoleAdd(GuildMemberRoleAddEvent event) {
         DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
         Member member = event.getMember();
-        if (member == null) return;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.refreshMember(member) );
     }
 

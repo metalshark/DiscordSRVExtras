@@ -15,12 +15,11 @@ public class PlayerJoinListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
-        if (player == null) return;
 
         final DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
         Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
             plugin.refreshPlayer(player);
-        }, plugin.DELAY);
+        }, DiscordSRVExtras.DELAY);
 
         final UUID uuid = player.getUniqueId();
         final String name = plugin.getPlayerName(uuid);

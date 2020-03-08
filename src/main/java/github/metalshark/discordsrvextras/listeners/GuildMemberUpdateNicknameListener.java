@@ -11,7 +11,6 @@ public class GuildMemberUpdateNicknameListener extends ListenerAdapter {
     public void onGuildMemberUpdateNickname(GuildMemberUpdateNicknameEvent event) {
         DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
         Member member = event.getMember();
-        if (member == null) return;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.refreshMember(member) );
     }
 

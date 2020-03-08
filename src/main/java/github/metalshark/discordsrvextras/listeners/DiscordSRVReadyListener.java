@@ -26,12 +26,16 @@ public class DiscordSRVReadyListener {
         jda.addEventListener(new RoleUpdateColorListener());
         jda.addEventListener(new RoleUpdatePositionListener());
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
 
             discordSRV.getAccountLinkManager().getLinkedAccounts().forEach(
                 (discordId, uuid) -> {
                     final User user = jda.getUserById(discordId);
+                    if (user == null) return;
+
                     final Member member = discordSRV.getMainGuild().getMember(user);
+                    if (member == null) return;
+
                     final String name = member.getEffectiveName();
                     final Role topRole = DiscordUtil.getTopRole(member);
                     final String nameColor = DiscordUtil.convertRoleToMinecraftColor(topRole);
@@ -39,7 +43,7 @@ public class DiscordSRVReadyListener {
                 }
             );
 
-        });
+        }, DiscordSRVExtras.DELAY);
     }
 
 }

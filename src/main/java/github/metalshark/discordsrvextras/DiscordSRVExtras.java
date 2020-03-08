@@ -15,10 +15,12 @@ import net.luckperms.api.node.Node;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import java.util.*;
@@ -47,12 +49,10 @@ public class DiscordSRVExtras extends JavaPlugin {
         ChatColor.YELLOW,
         ChatColor.WHITE
     ));
-    final private int MAX_NAME_LENGTH = 16;
 
     private final DiscordSRVReadyListener discordSRVReadyListener = new DiscordSRVReadyListener();
     private final DiscordSRVWatchdogMessagePreProcessListener discordSRVWatchdogMessagePreProcessListener = new DiscordSRVWatchdogMessagePreProcessListener();
 
-    private final ConcurrentHashMap<UUID, String> playerColors = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<UUID, String> playerNames = new ConcurrentHashMap<>();
 
     private Scoreboard scoreboard;
@@ -60,28 +60,31 @@ public class DiscordSRVExtras extends JavaPlugin {
 
     private LuckPerms luckPerms;
 
-    public static final DiscordSRVExtras getPlugin() {
+    public static DiscordSRVExtras getPlugin() {
         return getPlugin(DiscordSRVExtras.class);
     }
 
     public void changePlayerName(UUID uuid, String name, String nameColor) {
+        final int MAX_NAME_LENGTH = 16;
         if (name.length() > MAX_NAME_LENGTH) name = name.substring(0, MAX_NAME_LENGTH);
         final String finalName = name;
         playerNames.put(uuid, finalName);
-        playerColors.put(uuid, nameColor);
 
         Bukkit.getScheduler().runTask(this, () -> {
 
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+
             String playerName = offlinePlayer.getName();
+            if (playerName == null) return;
+
             for (Map.Entry<String, Team> entry : teams.entrySet()) {
                 final String teamColour = entry.getKey();
                 final Team team = entry.getValue();
                 if (team.hasEntry(playerName)) {
-                    if (teamColour != nameColor) {
+                    if (!teamColour.equals(nameColor)) {
                         team.removeEntry(playerName);
                     }
-                } else if (teamColour == nameColor) {
+                } else if (!teamColour.equals(nameColor)) {
                     team.addEntry(playerName);
                 }
             }
@@ -106,11 +109,7 @@ public class DiscordSRVExtras extends JavaPlugin {
         }
 
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-        if (offlinePlayer != null) {
-            return offlinePlayer.getName();
-        }
-
-        return null;
+        return offlinePlayer.getName();
     }
 
     public void refreshMember(Member member) {
@@ -127,7 +126,11 @@ public class DiscordSRVExtras extends JavaPlugin {
             changePlayerName(uuid, name, nameColor);
 
             if (luckPerms == null) return;
-            final Map<String, Object> rolesToGroups = getConfig().getConfigurationSection("RolesToGroups").getValues(false);
+
+            ConfigurationSection rolesToGroupsConfig = getConfig().getConfigurationSection("RolesToGroups");
+            if (rolesToGroupsConfig == null) return;
+
+            final Map<String, Object> rolesToGroups = rolesToGroupsConfig.getValues(false);
             UserManager userManager = luckPerms.getUserManager();
             CompletableFuture<net.luckperms.api.model.user.User> userFuture = userManager.loadUser(uuid);
 
@@ -137,8 +140,7 @@ public class DiscordSRVExtras extends JavaPlugin {
                 for (Role role : member.getRoles()) {
                     String roleId = role.getId();
                     if (!rolesToGroups.containsKey(roleId)) continue;
-                    final String groupName = ((String) rolesToGroups.get(roleId)).toLowerCase();
-                    topGroupName = groupName;
+                    topGroupName = ((String) rolesToGroups.get(roleId)).toLowerCase();
                     break;
                 }
 
@@ -149,13 +151,11 @@ public class DiscordSRVExtras extends JavaPlugin {
                 NodeMap userData = user.data();
                 DataMutateResult result;
 
-                if (primaryGroup != null) {
-                    result = userData.remove(Node.builder("group." + primaryGroup).build());
-                    if (result == DataMutateResult.SUCCESS) {
-                        getLogger().info("Removed " + user.getUsername() + " from group " + primaryGroup);
-                    } else {
-                        getLogger().warning("Unable to remove " + user.getUsername() + " from group " + primaryGroup + " received " + result.name());
-                    }
+                result = userData.remove(Node.builder("group." + primaryGroup).build());
+                if (result == DataMutateResult.SUCCESS) {
+                    getLogger().info("Removed " + user.getUsername() + " from group " + primaryGroup);
+                } else {
+                    getLogger().warning("Unable to remove " + user.getUsername() + " from group " + primaryGroup + " received " + result.name());
                 }
 
                 result = userData.add(Node.builder("group." + topGroupName).build());
@@ -199,7 +199,7 @@ public class DiscordSRVExtras extends JavaPlugin {
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 
             final DiscordSRV discordSRV = DiscordSRV.getPlugin();
-            if (!discordSRV.isReady) return;
+            if (!DiscordSRV.isReady) return;
 
             final JDA jda = discordSRV.getJda();
 
@@ -227,7 +227,11 @@ public class DiscordSRVExtras extends JavaPlugin {
             discordSRV.getAccountLinkManager().getLinkedAccounts().forEach(
                 (discordId, uuid) -> {
                     final User user = jda.getUserById(discordId);
+                    if (user == null) return;
+
                     final Member member = discordSRV.getMainGuild().getMember(user);
+                    if (member == null) return;
+
                     if (!member.getRoles().contains(role)) return;
                     Bukkit.getScheduler().runTaskLaterAsynchronously(discordSRV, () -> refreshMember(member), DiscordSRVExtras.DELAY);
                 }
@@ -240,7 +244,14 @@ public class DiscordSRVExtras extends JavaPlugin {
     public void onEnable() {
         this.saveDefaultConfig();
 
-        scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+
+        if (scoreboardManager == null) {
+            getLogger().warning("Unable to get scoreboard manager using Bukkit.getScoreboardManager()");
+            return;
+        }
+        scoreboard = scoreboardManager.getMainScoreboard();
+
         COLORS.forEach(chatColor -> {
             final String teamName = chatColor.name();
             Team team = scoreboard.getTeam(teamName);

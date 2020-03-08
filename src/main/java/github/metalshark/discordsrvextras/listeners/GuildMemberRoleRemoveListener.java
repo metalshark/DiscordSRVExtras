@@ -11,7 +11,6 @@ public class GuildMemberRoleRemoveListener extends ListenerAdapter {
     public void onGuildMemberRoleRemove(GuildMemberRoleRemoveEvent event) {
         DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
         Member member = event.getMember();
-        if (member == null) return;
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.refreshMember(member) );
     }
 

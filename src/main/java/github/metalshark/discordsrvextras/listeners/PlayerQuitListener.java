@@ -14,15 +14,15 @@ public class PlayerQuitListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
-        if (player == null) return;
 
         final DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
 
         final UUID uuid = player.getUniqueId();
         final String name = plugin.getPlayerName(uuid);
-        final String playerName = player.getName();
 
-        if (name == playerName) return;
+        final String playerName = player.getName();
+        if (name.equals(playerName)) return;
+        
         String message = event.getQuitMessage();
         message = message.replace(playerName, name);
         event.setQuitMessage(message);

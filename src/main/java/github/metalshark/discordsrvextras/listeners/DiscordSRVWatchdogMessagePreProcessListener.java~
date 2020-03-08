@@ -11,7 +11,7 @@ public class DiscordSRVWatchdogMessagePreProcessListener {
     public void onWatchdogMessagePreProcess(WatchdogMessagePreProcessEvent event) {
         DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
 
-        final String serverAdmin = plugin.getConfig().getString("ServerAdmin");
+        final String serverAdmin = plugin.getConfig().getString("ServerAdmin")
         if (serverAdmin == null) return;
 
         String message = event.getMessage();
