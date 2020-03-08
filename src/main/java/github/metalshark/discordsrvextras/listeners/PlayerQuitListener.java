@@ -16,13 +16,13 @@ public class PlayerQuitListener implements Listener {
         final Player player = event.getPlayer();
         if (player == null) return;
 
-        final UUID uuid = player.getUniqueId();
         final DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
+
+        final UUID uuid = player.getUniqueId();
         final String name = plugin.getPlayerName(uuid);
-
         final String playerName = player.getName();
-        if (name == playerName) return;
 
+        if (name == playerName) return;
         String message = event.getQuitMessage();
         message = message.replace(playerName, name);
         event.setQuitMessage(message);

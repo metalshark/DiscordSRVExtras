@@ -10,6 +10,7 @@ import github.scarsz.discordsrv.dependencies.jda.api.entities.Member;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Role;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.util.DiscordUtil;
+import org.bukkit.Bukkit;
 
 public class DiscordSRVReadyListener {
 
@@ -25,16 +26,23 @@ public class DiscordSRVReadyListener {
         jda.addEventListener(new RoleUpdateColorListener());
         jda.addEventListener(new RoleUpdatePositionListener());
 
-        discordSRV.getAccountLinkManager().getLinkedAccounts().forEach(
-            (discordId, uuid) -> {
-                final User user = jda.getUserById(discordId);
-                final Member member = discordSRV.getMainGuild().getMember(user);
-                final String name = member.getEffectiveName();
-                final Role topRole = DiscordUtil.getTopRole(member);
-                final String nameColor = DiscordUtil.convertRoleToMinecraftColor(topRole);
-                plugin.changePlayerName(uuid, name, nameColor);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+
+            @Override
+            public void run() {
+                discordSRV.getAccountLinkManager().getLinkedAccounts().forEach(
+                    (discordId, uuid) -> {
+                        final User user = jda.getUserById(discordId);
+                        final Member member = discordSRV.getMainGuild().getMember(user);
+                        final String name = member.getEffectiveName();
+                        final Role topRole = DiscordUtil.getTopRole(member);
+                        final String nameColor = DiscordUtil.convertRoleToMinecraftColor(topRole);
+                        plugin.changePlayerName(uuid, name, nameColor);
+                    }
+                );
             }
-        );
+
+        });
     }
 
 }

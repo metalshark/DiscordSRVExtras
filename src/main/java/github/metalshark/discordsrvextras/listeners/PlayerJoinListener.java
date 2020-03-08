@@ -19,7 +19,7 @@ public class PlayerJoinListener implements Listener {
         final DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
         plugin.refreshPlayer(player);
 
-        UUID uuid = player.getUniqueId();
+        final UUID uuid = player.getUniqueId();
         final String name = plugin.getPlayerName(uuid);
         final String playerName = player.getName();
 
