@@ -1,6 +1,7 @@
 package github.metalshark.discordsrvextras.listeners;
 
 import github.metalshark.discordsrvextras.DiscordSRVExtras;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,7 +18,9 @@ public class PlayerJoinListener implements Listener {
         if (player == null) return;
 
         final DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
-        plugin.refreshPlayer(player);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+            plugin.refreshPlayer(player);
+        }, plugin.DELAY);
 
         final UUID uuid = player.getUniqueId();
         final String name = plugin.getPlayerName(uuid);

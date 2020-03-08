@@ -27,6 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class DiscordSRVExtras extends JavaPlugin {
 
+    static final public long DELAY = 5;
+
     final private List<ChatColor> COLORS = Collections.unmodifiableList(Arrays.asList(
         ChatColor.BLACK,
         ChatColor.DARK_BLUE,
@@ -136,12 +138,11 @@ public class DiscordSRVExtras extends JavaPlugin {
                     String roleId = role.getId();
                     if (!rolesToGroups.containsKey(roleId)) continue;
                     final String groupName = ((String) rolesToGroups.get(roleId)).toLowerCase();
-                    if (topGroupName == null) {
-                        topGroupName = groupName;
-                        break;
-                    }
+                    topGroupName = groupName;
+                    break;
                 }
 
+                if (topGroupName == null) return;
                 if (topGroupName.equalsIgnoreCase(primaryGroup)) return;
 
                 getLogger().info("Change primary group of " + user.getUsername() + " from \"" + primaryGroup + "\" to \"" + topGroupName + "\"");
@@ -228,7 +229,7 @@ public class DiscordSRVExtras extends JavaPlugin {
                     final User user = jda.getUserById(discordId);
                     final Member member = discordSRV.getMainGuild().getMember(user);
                     if (!member.getRoles().contains(role)) return;
-                    refreshMember(member);
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(discordSRV, () -> refreshMember(member), DiscordSRVExtras.DELAY);
                 }
             );
 
