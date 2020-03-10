@@ -84,7 +84,7 @@ public class DiscordSRVExtras extends JavaPlugin {
                     if (!teamColour.equals(nameColor)) {
                         team.removeEntry(playerName);
                     }
-                } else if (!teamColour.equals(nameColor)) {
+                } else if (teamColour.equals(nameColor)) {
                     team.addEntry(playerName);
                 }
             }
