@@ -107,6 +107,14 @@
         </dependency>
 
         <dependency>
+            <groupId>org.inventivetalent</groupId>
+            <artifactId>glowapi</artifactId>
+            <version>1.4.11-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/GlowAPI_v1.4.11-SNAPSHOT.jar</systemPath>
+        </dependency>
+
+        <dependency>
             <groupId>net.luckperms</groupId>
             <artifactId>api</artifactId>
             <version>5.0</version>

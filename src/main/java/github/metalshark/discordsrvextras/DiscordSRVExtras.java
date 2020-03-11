@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
+import org.inventivetalent.glow.GlowAPI;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -91,6 +92,14 @@ public class DiscordSRVExtras extends JavaPlugin {
 
             Player player = Bukkit.getPlayer(uuid);
             if (player == null) return;
+
+            GlowAPI.Color glowColor = Arrays.stream(GlowAPI.Color.values())
+                .parallel()
+                .filter(color -> color.toString().equals(nameColor))
+                .findAny()
+                .orElse(GlowAPI.Color.NONE);
+            GlowAPI.setGlowing(player, glowColor, Bukkit.getOnlinePlayers());
+
             player.setCustomName(finalName);
             player.setDisplayName(finalName);
             player.setPlayerListName(finalName);
