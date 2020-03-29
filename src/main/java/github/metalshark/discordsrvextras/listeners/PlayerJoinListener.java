@@ -12,20 +12,19 @@ import java.util.UUID;
 
 public class PlayerJoinListener implements Listener {
 
+    @SuppressWarnings("unused")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
         final Player player = event.getPlayer();
 
         final DiscordSRVExtras plugin = DiscordSRVExtras.getPlugin();
-        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-            plugin.refreshPlayer(player);
-        }, DiscordSRVExtras.DELAY);
+        Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> plugin.refreshPlayer(player), DiscordSRVExtras.DELAY);
 
         final UUID uuid = player.getUniqueId();
         final String name = plugin.getPlayerName(uuid);
         final String playerName = player.getName();
 
-        if (name == playerName) return;
+        if (name.equals(playerName)) return;
         String message = event.getJoinMessage();
         message = message.replace(playerName, name);
         event.setJoinMessage(message);

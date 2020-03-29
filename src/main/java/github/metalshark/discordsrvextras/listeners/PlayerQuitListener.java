@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public class PlayerQuitListener implements Listener {
 
+    @SuppressWarnings("unused")
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         final Player player = event.getPlayer();
