@@ -31,7 +31,7 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/metalshark/LandsContexts/issues</url>
+        <url>https://github.com/${author}/${project.artifactId}/issues</url>
     </issueManagement>
 
     <scm>
@@ -89,6 +89,11 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -107,11 +112,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.inventivetalent</groupId>
-            <artifactId>glowapi</artifactId>
-            <version>1.4.11-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/GlowAPI_v1.4.11-SNAPSHOT.jar</systemPath>
+            <groupId>com.github.metalshark</groupId>
+            <artifactId>GlowAPI</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>
